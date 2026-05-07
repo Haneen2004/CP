@@ -1,0 +1,23 @@
+struct DSU{
+    vector<int>parent,siz;
+    DSU(int n){
+        parent=siz=vector<int>(n+1);
+        for (int i = 1; i <=n ; ++i) {
+            parent[i]=i,siz[i]=1;
+        }
+    }
+    int find(int x){
+        if(parent[x]==x)
+            return x;
+        return parent[x]=find(parent[x]);
+    }
+    void uni(int x,int y){
+        x=find(x);
+        y=find(y);
+        if(x==y) return;
+        if(siz[y]>siz[x])
+            swap(x,y);
+        parent[y]=x;
+        siz[x]+=siz[y];
+    }
+};

@@ -1,0 +1,8 @@
+struct pair_hash {
+    size_t operator()(const pair<int,int>& p) const {
+        auto h1 = std::hash<int>()(p.first);
+        auto h2 = std::hash<int>()(p.second);
+        return h1 ^ (h2 << 1);
+    }
+};
+unordered map [pair]

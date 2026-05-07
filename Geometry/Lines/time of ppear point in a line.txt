@@ -1,0 +1,12 @@
+line can represent as  p(t)=A+t*(B-A) t time of appear point p in line pass through A,B (sort points by appearance in the line)
+
+// get t from point
+ auto getT=[&](pt p){
+     pt AB = B - A,AP = p - A;
+     return (dot(AP, AB) / dot(AB, AB));
+};
+// get point from t
+ auto getP=[&](T t){
+    pt p=A+t*(B-A);
+    return p;
+ };

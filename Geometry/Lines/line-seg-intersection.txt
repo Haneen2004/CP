@@ -1,0 +1,17 @@
+// intersection between line pass through (a,b)  ,  segment (c,d)
+bool intersectLineSegment(pt A, pt B, pt C, pt D, pt &out, T &t_out) {
+    const T EPS = 1e-12;
+    pt AB = B - A;
+    pt CD = D - C;
+    pt AC = C - A;
+    T denom = cross(AB, CD);
+    if(fabsl(denom) < EPS)
+        return false;
+    T t = cross(AC, CD) / denom;
+    T u = cross(AC, AB) / denom;
+    if(u < -EPS || u > 1 + EPS)
+        return false;
+    out = A + AB * t;
+    t_out = t;
+    return true;
+}

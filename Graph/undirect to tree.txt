@@ -1,0 +1,62 @@
+struct unDirToTree {
+    vvi adj;
+    vi ids, onStack, lowLink;
+    stack<int> cur;
+    int id, n;
+    unDirToTree(int num, vvi &edg) {
+        n = num; adj = edg;    id = 1;
+        for (int i = 1; i <= n; ++i) {
+            adj[i].clear();
+            ids[i] = -1;
+            onStack[i] = lowLink[i] = 0;
+        }
+    }
+    void dfs(int u, int p) {
+        ids[u] = lowLink[u] = id++;
+        onStack[u] = 1;
+        cur.push(u);
+        for (auto &i: adj[u]) {
+            if (i == p) continue;
+            if (ids[i] == -1) {
+                dfs(i, u);
+                lowLink[u] = min(lowLink[u], lowLink[i]);
+            } else if (onStack[i]) {
+                lowLink[u] = min(lowLink[u], ids[i]);
+            }
+        }
+        if (lowLink[u] == ids[u]) {
+            int node = -1;
+            while (node != u) {
+                node = cur.top();
+                cur.pop();
+                onStack[node] = 0;
+                lowLink[node] = ids[u];
+            }
+        }
+    }
+    vvi treeEdges() {
+        dfs(1, 0);
+        vi root(n + 1);
+        for (int i = 1; i <= n; ++i) {
+            int l = lowLink[i];
+            if (!root[l])
+                root[l] = i;
+        }
+        vvi ret(n + 1);
+        for (int i = 1; i <= n; ++i) {
+            int u = root[lowLink[i]];
+            for (auto &it: adj[i]) {
+                int v = root[lowLink[it]];
+                if (v != u) {
+                    ret[u].pb(v);
+                    ret[v].pb(u);
+                }
+            }
+        }
+        for (int i = 1; i <= n; ++i) {
+            sort(all(ret[i]));
+            ret[i].resize(unique(all(ret[i])) - ret[i].begin());
+        }
+        return ret;
+    }
+};

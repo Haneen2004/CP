@@ -1,0 +1,52 @@
+struct Node{
+    map<char,int>ch;
+    int isEnd=0; // # of strings end at this node
+    int sz=0; // # of strings share this prefix
+
+    int &operator[](char x){        return ch[x];
+    }
+};
+
+struct Trie{
+    vector<Node>trie;
+    int newNode(){
+        trie.emplace_back();
+        return sz(trie)-1;
+    };
+    void clear(){
+        trie.clear();
+        newNode();
+    }
+Trie(){ clear(); }
+    // op = 1 insert, op = -1 delete
+    void update(string s,int op){
+        int cur=0;
+        for(char &ch:s){
+            if(trie[cur][ch]==0){
+                trie[cur][ch]=newNode();
+            }
+            cur=trie[cur][ch];
+            trie[cur].sz+=op;
+        }
+        trie[cur].isEnd+=op;
+    }
+
+    int query(int x,int k){
+        // <= k
+        int ret=0,u=0;
+        for (int i = 30; i >= 0 ; --i) {
+            int b=x>>i&1,bk=k>>i&1;
+            if(b^bk){
+                if(!b&&trie[trie[u][0]].sz) ret+=trie[trie[u][0]].sz;
+                u=trie[u][1];
+            }
+            else{
+                if(b&&trie[trie[u][1]].sz) ret+=trie[trie[u][1]].sz;
+                u=trie[u][0];
+            }
+            if(!u) break;
+        }
+        ret+=trie[u].sz;
+        return ret;
+    }
+};

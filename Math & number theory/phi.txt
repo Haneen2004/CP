@@ -1,0 +1,27 @@
+
+//phi =>number of co-primes with n(from 1 to n)
+// for single n 
+ll calc_phi(ll n) {
+    ll ret = n;
+    for (int i = 2; i * i <= n; ++i) {
+        if (n % i == 0) {
+            while (n % i == 0) n /= i;
+            ret -= ret / i;
+        }
+    }
+    if (n > 1) ret -= ret / n;
+    return ret;
+}
+// array phi
+vector<int>phi(N);
+void calc_phi() {
+    for (int i = 2; i < N; i++)
+        phi[i] = i;
+
+    for (int i = 2; i < N; i++) {
+        if (phi[i] == i) {
+            for (int j = i; j < N; j += i)
+                phi[j] -= phi[j] / i;
+        }
+    }
+}

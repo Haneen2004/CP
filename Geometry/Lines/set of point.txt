@@ -1,0 +1,7 @@
+// To create sets of points we need a comparison function
+struct cmpX {
+    bool operator()(pt a, pt b) const{
+        return make_pair(a.x, a.y) < make_pair(b.x, b.y);
+    }
+};
+set<pt,cmpX>s;

@@ -1,0 +1,152 @@
+// minimum circle contain set of points  (maximum dis between its center and any point is minimized)
+// o(n^3)
+const T EPS = 1e-9;
+T dist(const pt& a, const pt& b) {
+    return abs(a - b);
+}
+struct Circle {
+    pt c;
+    T r;
+    Circle(pt c = {}, T r = 0) : c(c), r(r) {}
+    bool contains(const pt& p) const {
+        return dist(c, p) <= r + EPS;
+    }
+};
+Circle circleFrom(const pt& a, const pt& b) {
+    pt center = (a + b) / T(2);
+    T radius = dist(a, b) / 2;
+    return {center, radius};
+}
+Circle circleFrom(const pt& A, const pt& B, const pt& C) {
+    T a = B.X - A.X, b = B.Y - A.Y;
+    T c = C.X - A.X, d = C.Y - A.Y;
+    T e = a * (A.X + B.X) + b * (A.Y + B.Y);
+    T f = c * (A.X + C.X) + d * (A.Y + C.Y);
+    T g = 2 * (a * (C.Y - B.Y) - b * (C.X - B.X));
+    if (abs(g) < EPS) return {{0, 0}, 1e18}; // نقاط على خط واحد
+
+    pt o((d * e - b * f) / g, (a * f - c * e) / g);
+    return {o, dist(o, A)};
+}
+// Welzl’s algorithm recursive
+Circle welzl(vector<pt>& P, vector<pt> R = {}, int n = -1) {
+    if (n == -1) n = P.size();
+    if (n == 0 || R.size() == 3) {
+        if (R.empty()) return {{0, 0}, 0};
+        if (R.size() == 1) return {R[0], 0};
+        if (R.size() == 2) return circleFrom(R[0], R[1]);
+        return circleFrom(R[0], R[1], R[2]);
+    }
+    pt p = P[n - 1];
+    Circle D = welzl(P, R, n - 1);
+    if (D.contains(p)) return D;
+    R.push_back(p);
+    return welzl(P, R, n - 1);
+}
+
+/// ///  o(N)
+using ld = long double;
+template<class T>
+struct Point {
+    typedef Point P;
+    T x, y;
+
+    Point(T x = 0, T y = 0) : x(x), y(y) {
+    }
+
+    bool operator<(P p) const { return tie(x, y) < tie(p.x, p.y); }
+
+    bool operator==(P p) const { return tie(x, y) == tie(p.x, p.y); }
+
+    P operator+(P p) const { return P(x + p.x, y + p.y); }
+
+    P operator-(P p) const { return P(x - p.x, y - p.y); }
+
+    P operator*(T d) const { return P(x * d, y * d); }
+
+    P operator/(T d) const { return P(x / d, y / d); }
+
+    T dot(P p) const { return x * p.x + y * p.y; }
+
+    T cross(P p) const { return x * p.y - y * p.x; }
+
+    T cross(P a, P b) const { return (a - *this).cross(b - *this); }
+
+    T dist2() const { return x * x + y * y; }
+
+    double dist() const { return sqrt((double) dist2()); }
+
+    double dist(P b) { return (*this - b).dist(); };
+
+    // angle to x-axis in interval [-pi, pi]
+    double angle() const { return atan2(y, x); }
+
+    P unit() const { return *this / dist(); } // makes dist()=1
+    P perp() const { return P(-y, x); } // rotates +90 degrees
+    P normal() const { return perp().unit(); }
+
+    P getVector(const P &p) const { return p - (*this); }
+
+    // returns point rotated 'a' radians ccw around the origin
+    P rotate(double a) const {
+        return P(x * cos(a) - y * sin(a), x * sin(a) + y * cos(a));
+    }
+
+    friend ostream &operator<<(ostream &os, P p) {
+        return os << "(" << p.x << "," << p.y << ")";
+    }
+
+    friend istream &operator>>(istream &is, P &p) {
+        return is >> p.x >> p.y;
+    }
+
+
+    // Project point onto line through a and b (assuming a != b).
+    P projectOnLine(const P &a, const P &b) const {
+        P ab = a.getVector(b);
+        P ac = a.getVector(*this);
+        return a + ab * ac.dot(ab) / a.dist2(b);
+    }
+
+    // Project point c onto line segment through a and b (assuming a != b).
+    P projectOnSegment(const P &a, const P &b) const {
+        P &c = *this;
+        P ab = a.getVector(b);
+        P ac = a.getVector(c);
+
+        long double r = dot(ac, ab), d = a.dist2(b);
+        if (r < 0) return a;
+        if (r > d) return b;
+
+        return a + ab * r / d;
+    }
+
+    P reflectAroundLine(const P &a, const P &b) const {
+        return projectOnLine(a, b) * 2 - (*this);
+    }
+};
+const ld eps = 1e-9;
+typedef Point<double> P;
+#define rep(aa, bb, cc) for(int aa = bb; aa < cc;aa++)
+P ccCenter(const P &A, const P &B, const P &C) {
+    P b = C - A, c = B - A;
+    return A + (b * c.dist2() - c * b.dist2()).perp() / b.cross(c) / 2;
+}
+pair<P, ld> mec(vector<P> ps) {
+    if(ps.empty()) return {0,0};
+    shuffle(all(ps), mt19937(time(0)));
+    P o = ps[0];
+    ld r = 0, EPS = 1 + 1e-8;
+    rep(i, 0, ps.size())if ((o - ps[i]).dist() > r * EPS) {
+            o = ps[i], r = 0;
+            rep(j, 0, i)if ((o - ps[j]).dist() > r * EPS) {
+                    o = (ps[i] + ps[j]) / 2;
+                    r = (o - ps[i]).dist();
+                    rep(k, 0, j)if ((o - ps[k]).dist() > r * EPS) {
+                            o = ccCenter(ps[i], ps[j], ps[k]);
+                            r = (o - ps[i]).dist();
+                        }
+                }
+        }
+    return {o, r};
+}

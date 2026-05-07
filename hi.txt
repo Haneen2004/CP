@@ -1,0 +1,14 @@
+#include <bits/stdc++.h>
+#define fix(n, num) fixed<<setprecision(num)<<n
+mt19937_64 rng(chrono::steady_clock::now().time_since_epoch().count());
+
+int32_t main() {
+//    freopen("zeros.in", "r", stdin);
+//    freopen("output.txt", "w", stdout);
+    ios_base::sync_with_stdio(false);
+    cin.tie(0), cout.tie(0);
+}
+
+long long Rand(ll l, ll r) {
+    return l + (rng() % (r - l + 1));
+}

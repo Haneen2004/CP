@@ -1,0 +1,16 @@
+
+// check if p is inside a circle ab is its diameter
+bool inDisk(pt a, pt b, pt p) {
+    return dot(a-p, b-p) <= 0;
+}
+// check if p is on segment ab
+bool onSegment(pt a, pt b, pt p) {
+    return orient(a,b,p) == 0 && inDisk(a,b,p);
+}
+// check if p is on ray ab
+bool onRay(pt st, pt en, pt p) {
+    line l(st,en);
+    if(orient(st,en,p)!=0||l.cmpProj(p,st))
+        return false;
+    return true;
+}

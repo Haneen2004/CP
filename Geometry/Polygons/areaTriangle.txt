@@ -1,0 +1,3 @@
+double areaTriangle(pt a, pt b, pt c) {
+    return abs(cross(b-a, c-a)) / 2.0;
+}

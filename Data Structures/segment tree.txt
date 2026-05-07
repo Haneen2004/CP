@@ -1,0 +1,93 @@
+struct segTree {
+    typedef int T;
+    static constexpr T unit = 0;
+    vector<T> data;
+    int sz = 1, n;
+    segTree(int nn) {
+        n = nn;
+        while (sz < nn)
+            sz *= 2;
+        data.assign(2 * sz, unit);
+    }
+    T merge(T l, T r) { return l + r; }
+    void update(int i, T val) {
+        for (data[i += sz] = val, i >>= 1; i; i >>= 1)
+            data[i] = merge(data[i * 2], data[i * 2 + 1]);
+    }
+    void build(vector<T> &v) {
+        for (int i = 0; i < n; ++i) data[i + sz] = v[i];
+        for (int i = sz - 1; i > 0; --i) data[i] = merge(data[i * 2], data[i * 2 + 1]);
+    }
+    // r is included
+    T query(int l, int r) {
+        T L = unit, R = unit;
+        for (l += sz, r += sz; l <= r; l >>= 1, r >>= 1) {
+            if (l & 1) L = merge(L, data[l++]);
+            if (r & 1 ^ 1) R = merge(data[r--], R);
+        }
+        return merge(L, R);
+    }
+};
+// segment tani
+struct node
+{
+    ll val;
+    node(int x = 0)
+    {  val=x;  }
+    void change(int x)
+    { val+=x; }
+};
+struct segtree{
+    int tree_size;
+    vector<node> seg_data;
+    segtree(vi v){
+        int n=sz(v);
+        tree_size=1;
+        while(tree_size<n) tree_size*=2;
+        seg_data.assign(2*tree_size,node());
+        build(v,0,0,tree_size);
+    }
+    node merge(const node&lf,const node&ri ){
+        node ret=node();
+        ret.val=lf.val+ri.val;
+        return ret;
+    }
+    void build(vi &v,int ni,int lx,int rx){
+        if(rx-lx==1){
+            if(lx<sz(v))
+                seg_data[ni]=node(v[lx]);
+            return;
+        }
+        int mid=(lx+rx)/2;
+        build(v,2*ni+1,lx,mid);
+        build(v,2*ni+2,mid,rx);
+        seg_data[ni]= merge(seg_data[2*ni+1],seg_data[2*ni+2]);
+    }
+    node query(int l,int r,int ni,int lx,int rx){
+        if(lx>=r || rx<=l)
+            return node();
+        if(lx>=l&&rx<=r)
+            return seg_data[ni];
+        int mid=(lx+rx)/2;
+        return merge(query(l,r,2*ni+1,lx,mid), query(l,r,2*ni+2,mid,rx));
+    }
+    int query(int l,int r){
+        return query(l,r+1,0,0,tree_size).val;
+    }
+    void change(int idx,int val,int ni,int lx,int rx){
+        if(rx - lx == 1)
+        {
+            seg_data[ni].change(val);
+            return;
+        }
+        ll mid = (lx + rx) / 2;
+        if(idx < mid)
+            change(idx, val, 2 * ni + 1, lx, mid);
+        else
+            change(idx, val, 2 * ni + 2, mid, rx);
+        seg_data[ni] = merge(seg_data[2 * ni + 1], seg_data[2 * ni + 2]);
+    }
+    void change(int idx,int val){
+        change(idx,val,0,0,tree_size);
+    }
+};

@@ -1,0 +1,11 @@
+// polar vector (unit direction)
+pt dir = polar((long double)1.0, angle);
+
+// move L in direction angle
+x += cos(a) * L;
+y += sin(a) * L;
+
+// move from point p toward direction (x -> y)
+pt dir = y - x;
+dir = dir / abs(dir); // unit vector
+pt newPoint = p + dir * d;

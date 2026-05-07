@@ -1,0 +1,31 @@
+// common length between non convex polygon and a line path trough(a,b)
+T calc(vector<pt>&poly,pt a,pt b){
+    // p(t)=A+t*(B-A)   t time of appear point p in line pass through A,B
+    // get t fot intersection between line , each side
+    line l(a,b);
+    auto side=[&](pt p){
+        T tmp=l.side(p);
+        if(tmp==0) return 0;
+        if(tmp>0) return 1;
+        return -1;
+    };
+    vector<pair<T,int>>tList;
+    for (int i = 0; i < n ; ++i) {
+        int j=(i+1)%n;
+        int si=side(poly[i]),sj=side(poly[j]);
+        if(si==sj) continue;
+        pt out; T tout;
+        if(intersectLineSegment(a,b,poly[i],poly[j],out,tout))
+            tList.pb({tout,si-sj});
+    }
+    sort(all(tList));
+    int sign=0;
+    T ret=0;
+    for (int i = 0; i+1 < sz(tList) ; ++i) {
+        sign+=tList[i].S;
+        if(sign==0) continue;
+        pt lf=a+tList[i].F*(b-a),ri=a+tList[i+1].F*(b-a);
+        ret+=abs(lf-ri);
+    }
+    return ret;
+}

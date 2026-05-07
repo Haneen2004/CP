@@ -1,0 +1,79 @@
+
+struct Hashing {
+    vector<vector<int>> hs1, hs2;
+    vector<int> PWX1, PWY1, PWX2, PWY2;
+    int n, m;
+
+    static const int PX = 911, PY = 3571;
+    static const int MOD1 = 1e9+7;
+    static const int MOD2 = 1e9+9;
+
+    Hashing() {}
+
+    Hashing(vector<string> &s) {
+        n = (int)s.size(), m = (int)s[0].size();
+
+        hs1.assign(n + 1, vector<int>(m + 1, 0));
+        hs2.assign(n + 1, vector<int>(m + 1, 0));
+
+        PWX1.assign(n + 1, 1);
+        PWY1.assign(m + 1, 1);
+        PWX2.assign(n + 1, 1);
+        PWY2.assign(m + 1, 1);
+
+        // precompute powers
+        for (int i = 0; i < n; i++) {
+            PWX1[i + 1] = 1LL * PWX1[i] * PX % MOD1;
+            PWX2[i + 1] = 1LL * PWX2[i] * PX % MOD2;
+        }
+        for (int i = 0; i < m; i++) {
+            PWY1[i + 1] = 1LL * PWY1[i] * PY % MOD1;
+            PWY2[i + 1] = 1LL * PWY2[i] * PY % MOD2;
+        }
+
+        // initialize base values
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < m; j++) {
+                int val = s[i][j] - 'a' + 1;
+                hs1[i + 1][j + 1] = val;
+                hs2[i + 1][j + 1] = val;
+            }
+        }
+
+        // prefix hash for rows
+        for (int i = 0; i <= n; i++) {
+            for (int j = 0; j < m; j++) {
+                hs1[i][j + 1] = (hs1[i][j + 1] + 1LL * hs1[i][j] * PY % MOD1) % MOD1;
+                hs2[i][j + 1] = (hs2[i][j + 1] + 1LL * hs2[i][j] * PY % MOD2) % MOD2;
+            }
+        }
+
+        // prefix hash for columns
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j <= m; j++) {
+                hs1[i + 1][j] = (hs1[i + 1][j] + 1LL * hs1[i][j] * PX % MOD1) % MOD1;
+                hs2[i + 1][j] = (hs2[i + 1][j] + 1LL * hs2[i][j] * PX % MOD2) % MOD2;
+            }
+        }
+    }
+
+    pair<int,int> get_hash(int x1, int y1, int x2, int y2) {
+        // 1-indexed
+        assert(1 <= x1 && x1 <= x2 && x2 <= n);
+        assert(1 <= y1 && y1 <= y2 && y2 <= m);
+        x1--; y1--;
+        int dx = x2 - x1, dy = y2 - y1;
+
+        int h1 = (1LL * (hs1[x2][y2] - 1LL * hs1[x2][y1] * PWY1[dy] % MOD1 + MOD1) % MOD1 -
+                  1LL * (hs1[x1][y2] - 1LL * hs1[x1][y1] * PWY1[dy] % MOD1 + MOD1) % MOD1 * PWX1[dx] % MOD1 + MOD1) % MOD1;
+
+        int h2 = (1LL * (hs2[x2][y2] - 1LL * hs2[x2][y1] * PWY2[dy] % MOD2 + MOD2) % MOD2 -
+                  1LL * (hs2[x1][y2] - 1LL * hs2[x1][y1] * PWY2[dy] % MOD2 + MOD2) % MOD2 * PWX2[dx] % MOD2 + MOD2) % MOD2;
+
+        return {h1, h2};
+    }
+
+    pair<int,int> get_hash() {
+        return get_hash(1, 1, n, m);
+    }
+};

@@ -1,0 +1,5 @@
+/ 0 if point p on the line(a,b,c) , 1 if in one side , -1 another side
+// -1,1 may be different with 2 cases
+int side(int a,int b,int c,pt p){
+    return sgn(a*p.X+b*p.Y+c);
+}

@@ -1,0 +1,31 @@
+vvi matMul(vvi &a, vvi &b) {
+    int r1 = sz(a), c1 = sz(a[0]);
+    int r2 = sz(b), c2 = sz(b[0]);
+    assert(c1 == r2);
+    vvi res(r1, vi(c2));
+    for (int i = 0; i < r1; ++i) {
+        for (int j = 0; j < c2; ++j) {
+            for (int k = 0; k < c1; ++k) {
+                res[i][j] += (a[i][k] * b[k][j])%mod;
+                res[i][j]%=mod;
+            }
+        }
+    }
+
+    return res;
+}
+
+vvi matPow(vvi &a, int n) {
+    int k = sz(a);
+    vvi res(k, vi(k));
+    for (int i = 0; i < k; ++i) {
+        res[i][i] = 1;
+    }
+    while (n) {
+        if (n & 1)
+            res = matMul(res, a);
+        a = matMul(a, a);
+        n >>= 1;
+    }
+    return res;
+}

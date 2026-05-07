@@ -1,0 +1,3 @@
+// +ve (c to left of AB) , -ve (c to right of AB), zero if ABC are collinear.
+// orient(ABC) = orient(BCA) = orient(CAB)
+T orient(pt a, pt b, pt c) {return cross(b-a,c-a);}

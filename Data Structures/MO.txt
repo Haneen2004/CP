@@ -1,0 +1,31 @@
+struct query {
+    int l, r, idx;
+    bool operator<(query &other) {
+        if (l / sq == other.l / sq)
+            return ((l / sq) & 1 ? (r > other.r) : (r < other.r));
+        return l / sq < other.l / sq;
+    }
+};
+int main() {
+    auto add = [&](int idx) {
+        ct -= v[idx] == fre[ix[idx]];
+        fre[ix[idx]]++;
+        ct += v[idx] == fre[ix[idx]];
+    };
+    auto del = [&](int idx) {
+        ct -= v[idx] == fre[ix[idx]];
+        fre[ix[idx]]--;
+        ct += v[idx] == fre[ix[idx]];
+    };
+    auto getans = [&]() {
+        return ct;
+    };
+    int l = 0, r = -1;
+    for (auto &[lq, rq, idx]: qu) {
+        while (r < rq) add(++r);
+        while (l > lq) add(--l);
+        while (r > rq) del(r--);
+        while (l < lq) del(l++);
+        ans[idx] = getans();
+    }
+}

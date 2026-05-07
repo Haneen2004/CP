@@ -1,0 +1,40 @@
+// nCr    loop over r
+ll ncr(ll n, ll r) {
+    if (r > n) return 0;
+    if (r == 0 || r == n) return 1;
+    r = min(r, n - r);
+    ll ret = 1;
+    for (ll i = 1; i <= r; i++) {
+        ret = ret * (n - r + i) % mod;
+        ret = ret * pow_mod(i, mod - 2, mod) % mod;
+    }
+    return ret;
+}
+// ncr 3ady
+ll pow_mod(ll x, ll n, ll m) {}
+vector<ll> fac(N); 
+// in main
+fac[0]=fac[1]=1;
+for ( int i = 2; i<N; ++i) {
+     fac[i]=( i *(fac[i - 1]%mod))%mod;
+}
+ll ncr(ll n, ll r) {
+    if (r > n) return 0;
+    ll d = (fac[r] * fac[n - r]) % mod;
+    return (fac[n] * pow_mod(d, mod - 2, mod)) % mod;
+}
+
+ll npr(ll n, ll r) {
+    if (r > n) return 0;
+    return (fac[n] * pow_mod(fac[n - r], mod - 2, mod)) % mod;
+}
+
+// Ncr bta3 el prob
+ld ncr(int n, int k){
+    if(k>n) return 0;
+    ld ans = 1;
+    k = min(k, n -k);
+    for(int i =0; i <k; i++)
+        ans = (ans * (n - i))/ (i + 1);
+    return ans;
+}

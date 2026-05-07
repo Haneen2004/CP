@@ -1,0 +1,29 @@
+vi prefix_function(string &s){
+    int n=sz(s);
+    vi p(n);
+    p[0]=0;
+    for (int i = 1; i < n ; ++i) {
+        int k=p[i-1];
+        while (k>0&&s[i]!=s[k])
+            k=p[k-1];
+        if(s[i]!=s[k]) p[i]=0;
+        else p[i]=k+1;
+    }
+    return p;
+}
+
+// compute_automaton
+void compute_automaton(string s, vector<vector<int>>& aut) {
+    s += '#';
+    int n = s.size();
+    vector<int> pi = prefix_function(s);
+    aut.assign(n, vector<int>(26));
+    for (int i = 0; i < n; i++) {
+        for (int c = 0; c < 26; c++) {
+            if (i > 0 && 'a' + c != s[i])
+                aut[i][c] = aut[pi[i-1]][c];
+            else
+                aut[i][c] = i + ('a' + c == s[i]);
+        }
+    }
+}

@@ -1,0 +1,33 @@
+// r^2
+T sq(pt p) { return p.X * p.X + p.Y * p.Y; }
+struct line {
+    // a,b,c represent  ax+by+c=0
+    //  l.v.y<<' '<<-l.v.x<<' '<<l.c
+    pt v; // (-b,a)
+    T c;
+    // From direction vector v and offset c
+    line(pt v, T c) : v(v), c(c) {}
+    // From equation ax+by=c
+    line(T a, T b, T c) : v({-b, a}), c(c) {}
+    // From points P and Q
+    line(pt p, pt q) : v(q - p), c(cross(v, p)) {}
+    // check if the point is in +ve or -ve side
+    // equal to orient(P,Q,R) , bigger ->farther from the line
+    T side(pt p) { return cross(v, p) - c; }
+    long double dist(pt p) { return abs(side(p)) / abs(v); }
+    long double sqDist(pt p) { return side(p) * side(p) / (double) sq(v); }
+    // get line perp on l through a point p
+    line perpThrough(pt p) { return {p, p + perp(v)}; }
+    // compare points along the line (sort / orthogonal projection)
+    bool cmpProj(pt p, pt q) {
+        return dot(v, p) < dot(v, q);
+    }
+    // translate a line l by vector t
+    line translate(pt t) { return {v, c + cross(v, t)}; }
+    //- these require T = double
+    line shiftLeft(double dist) { return {v, c + dist * abs(v)}; }
+    //orthogonal projection of a point P on a line l is the point on l that is closest to P
+    pt proj(pt p) { return p - perp(v) * side(p) / sq(v); }
+    // reflection of p trough l
+    pt refl(pt p) { return p - perp(v) * 2.0l * side(p) / sq(v); }
+};

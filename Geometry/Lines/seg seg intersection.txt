@@ -1,0 +1,32 @@
+// intersection between 2 segments (they are x shape)
+bool properInter(pt a, pt b, pt c, pt d, pt &out) {
+    long double oa = orient(c,d,a),
+            ob = orient(c,d,b),
+            oc = orient(a,b,c),
+            od = orient(a,b,d);
+    // Proper intersection exists iff opposite signs
+    if (oa*ob < 0 && oc*od < 0) {
+        out = (a*ob- b*oa) / (ob-oa);
+        return true;
+    }
+    return false;
+}
+
+// intersection 3moman
+vector<pt> segInter(pt a, pt b, pt c, pt d) {
+    auto oa = cross(d, a), ob = cross(d, b),
+            oc = cross(b, c), od = cross(b, d);
+    pt ret;
+    if(properInter(a,b,c,d,ret)) return {ret};
+    vector<pt>s;
+    if (onSegment(c, d, a)) s.pb(a);
+    if (onSegment(c, d, b)) s.pb(b);
+    if (onSegment(a, b, c)) s.pb(c);
+    if (onSegment(a, b, d)) s.pb(d);
+    sort(all(s),[&](pt a,pt b){
+        if(a.X==b.X) return a.Y<b.Y;
+        return a.X<b.X;
+    });
+    s.resize(unique(all(s))-s.begin());
+    return s;
+}

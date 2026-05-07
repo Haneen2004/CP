@@ -1,0 +1,7 @@
+// dot product of two vectors => v.w = w.v
+T dot(pt v, pt w) {return v.x*w.x + v.y*w.y;}
+T dot(pt v, pt w) {return (conj(v)*w).x;}
+
+// cross product
+T cross(pt v, pt w) {return v.x*w.y- v.y*w.x;}
+T cross(pt v, pt w) {return (conj(v)*w).y;}

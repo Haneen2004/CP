@@ -1,0 +1,62 @@
+struct HLD {
+    vi big, head, z, par, id, dep;
+    void dfs(int v, vvi &adj) {
+        for (auto &u: adj[v]) {
+            if (u == par[v]) continue;
+            par[u] = v;
+            dep[u] = dep[v] + 1;
+            dfs(u, adj);
+            z[v] += z[u];
+            if (big[v] == 0 || z[u] > z[big[v]]) big[v] = u;
+        }
+    }
+    void flatten(int v, vvi &adj, int &nxt) {
+        id[v] = nxt++;
+        if (big[v])
+            head[big[v]] = head[v], flatten(big[v], adj, nxt);
+        for (auto &u: adj[v]) {
+            if (u == par[v] || u == big[v]) continue;
+            head[u] = u;
+            flatten(u, adj, nxt);
+        }
+    }
+    HLD(int n, vvi &adj) : big(n + 1), head(n + 1), z(n + 1, 1), par(n + 1), id(n + 1), dep(n + 1)
+    {
+        dfs(1, adj);
+        head[1] = 1;
+        int nxt = 0;
+        flatten(1, adj, nxt);
+    }
+    vpi path(int u, int v) {
+        vpi res;
+        while (true) {
+            if (head[u] == head[v]) {
+                if (dep[u] > dep[v]) swap(u, v);
+                res.emplace_back(id[u], id[v]);
+                return res;
+            } else {
+                if (dep[head[u]] > dep[head[v]]) swap(u, v);
+                res.emplace_back(id[head[v]], id[v]);
+                v = par[head[v]];
+            }
+        }
+    }
+//path in the same order from a to b
+    vpi pathordered(int u, int v) {
+        vpi res_u,res_v;
+        while (true) {
+            if (head[u] == head[v]) {
+                res_u.emplace_back(id[u], id[v]);
+                while(!res_v.empty()){
+                    res_u.emplace_back(res_v.back());
+                    res_v.pop_back();
+                }
+                return res_u;
+            } else {
+                if (dep[head[u]] > dep[head[v]])
+                    res_u.emplace_back(id[u], id[head[u]]),u=par[head[u]];
+                else res_v.emplace_back(id[head[v]], id[v]),v = par[head[v]];
+            }
+        }
+    }
+};

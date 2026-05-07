@@ -1,0 +1,19 @@
+
+// intersection area of 2  circles 
+T sq(T x) { return x * x; }
+
+T intersectionArea(pt c1, T r1, pt c2, T r2) {
+    T d = abs(c1 - c2);
+    if (d >= r1 + r2) return 0;          // No intersection (0 area)
+    if (d <= abs(r1 - r2)) {             // One circle completely inside another
+        T r = min(r1, r2);
+        return PI * r * r;               // Return area of smaller circle
+    }
+    // Calculate angles using law of cosines
+    T alpha = 2 * acos((sq(r1) + sq(d) - sq(r2)) / (2 * r1 * d));
+    T beta = 2 * acos((sq(r2) + sq(d) - sq(r1)) / (2 * r2 * d));
+    // Calculate segment areas (sector area - triangle area)
+    T area1 = (sq(r1) * (alpha - sin(alpha))) / 2;
+    T area2 = (sq(r2) * (beta - sin(beta))) / 2;
+    return area1 + area2;
+}

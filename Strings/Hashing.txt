@@ -1,0 +1,49 @@
+
+const ll MaxN = 1e6 + 1;
+vector<long long> pw1, pw2, invPw1, invPw2;
+int base1, base2, MOD1, MOD2;
+
+long long power(long long A, long long B, long long MOD) {
+    long long result = 1;
+    while (B > 0) {
+        if (B & 1)
+            result = (result % MOD * A % MOD) % MOD;
+        A = (A % MOD * A % MOD) % MOD;
+        B >>= 1;
+    }
+    return result;
+}
+
+void PREPROCESS() {
+    base1 = 131, base2 = 153, MOD1 = 1e9 + 7, MOD2 = 1e9 + 9;
+    pw1 = invPw1 = pw2 = invPw2 = vector<long long>(MaxN, 1);
+    for (int i = 1; i < MaxN; ++i) {
+        pw1[i] = (pw1[i - 1] * base1) % MOD1;
+        pw2[i] = (pw2[i - 1] * base2) % MOD2;
+    }
+    invPw1[MaxN - 1] = power(pw1[MaxN - 1], MOD1 - 2, MOD1);
+    invPw2[MaxN - 1] = power(pw2[MaxN - 1], MOD2 - 2, MOD2);
+    for (int i = MaxN - 2; i >= 0; --i) {
+        invPw1[i] = (invPw1[i + 1] * base1) % MOD1;
+        invPw2[i] = (invPw2[i + 1] * base2) % MOD2;
+    }
+}
+
+struct SH {
+    vector <pair<long long, long long>> hs;
+
+    explicit SH(string &s) {
+        hs.resize(s.size() + 1, {0, 0});
+        for (int i = 0; i < s.size(); ++i) {
+            hs[i + 1].first = (hs[i].first + (s[i] - 'a' + 1) * pw1[i]) % MOD1;
+            hs[i + 1].second = (hs[i].second + (s[i] - 'a' + 1) * pw2[i]) % MOD2;
+        }
+    }
+
+    pair <ll, ll> getRange(int l, int r) {
+        return {
+                (hs[r + 1].first - hs[l].first + MOD1) * invPw1[l] % MOD1,
+                (hs[r + 1].second - hs[l].second + MOD2) * invPw2[l] % MOD2
+        };
+    }
+};

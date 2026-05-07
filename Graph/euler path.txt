@@ -1,0 +1,31 @@
+vector<set<ii>> adj(N);
+vi ans;
+
+void eulerPath(int u) {
+    while (!adj[u].empty()) {
+        auto [v, idx] = *adj[u].begin();
+        adj[u].erase({v, idx});
+        adj[v].erase({u, idx});
+        eulerPath(v);
+        ans.push_back(idx);
+    }
+}
+// in main
+vi st;
+for (int i = 1; i <id ; ++i) {
+    if(sz(adj[i])&1) {
+        st.pb(i);
+    }
+}
+
+if(st.empty()) st.pb(1);
+
+ans.clear();
+eulerPath(*st.begin());
+
+if(sz(ans)!=n||sz(st)>2) cout<<"NO\n";
+else {
+    cout<<"YES\n";
+    for(auto&i:ans) cout<<i<<' ';
+    cout<<'\n';
+}

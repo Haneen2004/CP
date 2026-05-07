@@ -1,0 +1,11 @@
+vector<bool> prime(N, true);
+void sieve() {
+    prime[0] = false, prime[1] = false;
+    for (int i = 2; i * i < N; ++i) {
+        if (prime[i]) {
+            for (int j = i * i; j < N; j += i) {
+                prime[j] = false;
+            }
+        }
+    }
+}

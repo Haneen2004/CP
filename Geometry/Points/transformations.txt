@@ -1,0 +1,34 @@
+// 1-Translation ( translate an p by a vector v)
+pt translate(pt v, pt p) {return p+v;}
+
+//2-Scaling ( scale an object(p) by a certain ratio(factor) around a center (c) )
+pt scale(pt c, long double factor, pt p) {
+    return c + (p-c)*factor;
+}
+
+//3-Rotation
+// (rotate an object by a certain angle around center c)
+// from the origin center c=(0,0)
+pt rot(pt p, double a) { // a->angle
+    return {p.x*cos(a)- p.y*sin(a), p.x*sin(a) + p.y*cos(a)};
+}
+
+// or
+pt rot(pt p, long double a) {return p * polar(1.0l, a);}
+
+// rotation by 90 deg
+pt perp(pt p) {return {-p.y, p.x};}
+
+// from center not origin
+pt rot(pt p, pt c, long double a){
+    pt v = p - c;
+    pt rotate = {cos(a), sin(a)};
+    return c + rotate * v;
+}
+
+
+// General linear transformation
+// given 2 points and their transform points , want transform of third point
+pt linearTransfo(pt p, pt q, pt r, pt fp, pt fq) {
+    return fp + (r-p) * (fq-fp) / (q-p);
+}

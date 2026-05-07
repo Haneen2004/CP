@@ -1,0 +1,6 @@
+//given A, B, C return center of the circle path trough them
+pt circumCenter(pt a, pt b, pt c) {
+    b = b-a, c = c-a; // consider coordinates relative to A
+    assert(cross(b,c) != 0); // no circumcircle if A,B,C aligned
+    return a + perp(b*sq(c)- c*sq(b))/cross(b,c)/2;
+}

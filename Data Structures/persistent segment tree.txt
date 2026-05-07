@@ -1,0 +1,82 @@
+struct Node{
+    Node* l, *r;
+    ll s;
+    Node(ll s = 0, Node* l = NULL, Node* r = NULL):
+            s(s) , l(l) , r(r){}
+};
+struct persistentSeg {
+    int n;
+    persistentSeg(int n){ this->n=n;}
+
+    Node *merge(Node *l,Node *r){
+        Node *res = new Node();
+        res->l = l;
+        res->r = r;
+        res->s = l->s + r->s;
+        return res;
+    }
+    Node *newLeaf(int val) { return new Node(val); }
+
+    Node *newPar(Node *l, Node *r) { return merge(l,r); }
+
+    Node *build(vector<int> &a, int l, int r) {
+        if (r - l == 1) return newLeaf(a[l]);
+        int m = (l + r) / 2;
+        return newPar(build(a, l, m), build(a, m, r));
+    }
+    Node *build(vi &a){
+        return build(a,0,n);
+    }
+
+    Node *upd(int i, int v, Node *x, int l, int r) {
+        if (r - l == 1) return newLeaf(v);
+        int m = (l + r) / 2;
+        if (i < m) {
+            return newPar(upd(i, v, x->l, l, m), x->r);
+        } else {
+            return newPar(x->l, upd(i, v, x->r, m, r));
+        }
+    }
+    Node *upd(int i,int v,Node *x){
+        return upd(i,v,x,0,n);
+    }
+
+    ll qry(int lx, int rx, Node *x, int l, int r) {
+        if (l >= lx && r <= rx) return x->s;
+        if (r <= lx || l >= rx) return 0;
+        int m = (l + r) / 2;
+        return qry(lx, rx, x->l, l, m) + qry(lx, rx, x->r, m, r);
+    }
+    ll qry(int l,int r,Node *x){
+        return qry(l,r+1,x,0,n);
+    }
+
+    int lastKth(int k, Node *x, int l, int r) {
+        if(x->s<=k) return r;
+        if (r - l == 1) return l;
+        int m = (l + r) / 2;
+        if (x->l->s > k) {
+            return lastKth(k, x->l, l, m);
+        }
+        else {
+            return lastKth(k-x->l->s, x->r, m, r);
+        }
+    }
+    int lastKth(int k,Node *x){
+        return lastKth(k,x,0,n)-1;
+    }
+
+    int firstKth(int k, Node *x, int l, int r) {
+        if (r - l == 1) return l;
+        int m = (l + r) / 2;
+        if (x->l->s >= k) {
+            return firstKth(k, x->l, l, m);
+        } else {
+            return firstKth(k-x->l->s, x->r, m, r);
+        }
+    }
+    int firstKth(int k,Node *x){
+        return firstKth(k,x,0,n);
+    }
+
+};

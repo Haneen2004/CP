@@ -1,0 +1,11 @@
+// circle inside a triangle
+T sq(pt p) { return p.X * p.X + p.Y * p.Y; }
+T abs(pt p) { return sqrt(sq(p)); }
+pt inCenter(pt a, pt b, pt c) {
+    T ab = abs(b - a); // length opposite C
+    T bc = abs(c - b); // length opposite A
+    T ca = abs(a - c); // length opposite B
+    T perimeter = ab + bc + ca;
+    assert(perimeter > 0); // ensure non-degenerate triangle
+    return (a * bc + b * ca + c * ab) / perimeter;
+}

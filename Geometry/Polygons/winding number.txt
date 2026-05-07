@@ -1,0 +1,43 @@
+// The number of times the polygon wraps around this point
+int windingNumber(vector<pt> p, pt a) {
+    T ampli = 0;
+    for (int i = 0, n = p.size(); i < n; i++) {
+        ampli += angleTravelled(a, p[i], p[(i + 1) % n]);
+    }
+    return round(ampli / (2 * M_PI));
+}
+
+
+// winding number for int  avoid floating errors
+struct anglle {
+    pt d;
+    int t = 0; // direction and number of full turns
+    // Turn 180 degrees counter-clockwise
+    anglle t180() {
+        return {d * (-1LL), t + half(d)};
+    }
+    // Turn 360 degrees counter-clockwise (full turn)
+    anglle t360() {
+        return {d, t + 1};
+    }
+};
+bool operator<(anglle a, anglle b) {
+    return make_tuple(a.t, half(a.d), 0) < make_tuple(b.t, half(b.d), cross(a.d, b.d));
+}
+anglle moveTo(anglle a, pt newD) {
+    // check that segment [DD’] doesn’t go through the origin
+    assert(!onSegment(a.d, newD, {0,0}));
+    anglle b{newD, a.t};
+    if (a.t180() < b) // if b more than half a turn bigger
+        b.t--; //decrease b by a full turn
+    if (b.t180() < a) // if b more than half a turn smaller
+        b.t++; //  increase b by a full turn
+    return b;
+}
+int windingNumber2(vector<pt> p, pt a) {
+    anglle a{p.back()}; // start at last vertex
+    for (pt d: p) {
+        a = moveTo(a, d); // move to first vertex, second, etc.
+    }
+    return a.t;
+}

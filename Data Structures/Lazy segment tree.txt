@@ -1,0 +1,207 @@
+struct node
+{
+    ll lazy,val;
+    bool is_lazy;
+    node(int x = 1e18)
+    {
+        val=x;
+        lazy = 0;
+        is_lazy = 0;
+    }
+    void change(int x, int lx, int rx)
+    {
+        val+=x;
+        lazy += x;
+        is_lazy = 1;
+    }
+};
+struct segtree{
+    int tree_size;
+    vector<node> seg_data;
+    segtree(vi v){
+        int n=sz(v);
+        tree_size=1;
+        while(tree_size<n) tree_size*=2;
+        seg_data.assign(2*tree_size,node());
+        build(v,0,0,tree_size);
+    }
+    node merge(const node&lf,const node&ri ){
+        node ret=node();
+        ret.val=min(lf.val,ri.val);
+        return ret;
+    }
+    void build(vi &v,int ni,int lx,int rx){
+        if(rx-lx==1){
+            if(lx<sz(v))
+                seg_data[ni]=node(v[lx]);
+            return;
+        }
+        int mid=(lx+rx)/2;
+        build(v,2*ni+1,lx,mid);
+        build(v,2*ni+2,mid,rx);
+        seg_data[ni]= merge(seg_data[2*ni+1],seg_data[2*ni+2]);
+    }
+
+    void propagate(int ni,int lx,int rx){
+        if(rx-lx==1||!seg_data[ni].is_lazy)
+            return;
+        int mid=(lx+rx)/2;
+        seg_data[2*ni+1].change(seg_data[ni].lazy,lx,mid);
+        seg_data[2*ni+2].change(seg_data[ni].lazy,mid,rx);
+        seg_data[ni].lazy=seg_data[ni].is_lazy=0;
+    }
+
+    node query(int l,int r,int ni,int lx,int rx){
+        propagate(ni, lx, rx);
+
+        if(lx>=r || rx<=l)
+            return node();
+        if(lx>=l&&rx<=r)
+            return seg_data[ni];
+        int mid=(lx+rx)/2;
+        return merge(query(l,r,2*ni+1,lx,mid), query(l,r,2*ni+2,mid,rx));
+    }
+    int query(int l,int r){
+        return query(l,r+1,0,0,tree_size).val;
+    }
+
+    void change(int l,int r,int val,int ni,int lx,int rx){
+        propagate(ni, lx, rx);
+        if(lx>=r || rx<=l)
+            return;
+        if(lx>=l&&rx<=r) {
+            seg_data[ni].change(val, lx, rx);
+            return;
+        }
+        int mid=(lx+rx)/2;
+        change(l,r,val,2*ni+1,lx,mid);
+        change(l,r,val,2*ni+2,mid,rx);
+        seg_data[ni] = merge(seg_data[2 * ni + 1], seg_data[2*ni + 2]);
+    }
+    void change(int l,int r,int val){
+        change(l,r+1,val,0,0,tree_size);
+    }
+};
+
+
+
+
+
+
+
+// next , prev greater
+// lazy segment tree
+struct node {
+    ll lazy, val, mx;
+    node(ll x = 0) {
+        val = mx = x;
+        lazy = 0;
+    }
+    void change(int x, int lx, int rx) {
+        val = x * (rx - lx);  // sum
+        lazy = mx = x;        // max
+    }
+};
+struct segtree {
+    int tree_size;
+    vector<node> seg_data;
+
+    segtree(const vi& v) {
+        int n = v.size();
+        tree_size = 1;
+        while(tree_size < n) tree_size *= 2;
+        seg_data.assign(2 * tree_size, node());
+        build(v, 0, 0, tree_size);
+    }
+
+    node merge(const node& lf, const node& ri) {
+        node ret;
+        ret.val = lf.val + ri.val;
+        ret.mx = max(lf.mx, ri.mx);
+        return ret;
+    }
+
+    void build(const vi& v, int ni, int lx, int rx) {
+        if(rx - lx == 1) {
+            if(lx < v.size()) seg_data[ni] = node(v[lx]);
+            return;
+        }
+        int mid = (lx + rx) / 2;
+        build(v, 2*ni+1, lx, mid);
+        build(v, 2*ni+2, mid, rx);
+        seg_data[ni] = merge(seg_data[2*ni+1], seg_data[2*ni+2]);
+    }
+
+    void propagate(int ni, int lx, int rx) {
+        if(rx - lx == 1 || seg_data[ni].lazy == 0) return;
+        int mid = (lx + rx) / 2;
+        seg_data[2*ni+1].change(seg_data[ni].lazy, lx, mid);
+        seg_data[2*ni+2].change(seg_data[ni].lazy, mid, rx);
+        seg_data[ni].lazy = 0;
+    }
+
+    node query(int l, int r, int ni, int lx, int rx) {
+        propagate(ni, lx, rx);
+        if(lx >= r || rx <= l) return node();
+        if(lx >= l && rx <= r) return seg_data[ni];
+        int mid = (lx + rx) / 2;
+        return merge(query(l,r,2*ni+1,lx,mid), query(l,r,2*ni+2,mid,rx));
+    }
+
+    int query(int l, int r) {
+        return query(l,r+1,0,0,tree_size).val;
+    }
+
+    void change(int l, int r, int val, int ni, int lx, int rx) {
+        propagate(ni, lx, rx);
+        if(lx >= r || rx <= l) return;
+        if(lx >= l && rx <= r) {
+            seg_data[ni].change(val, lx, rx);
+            return;
+        }
+        int mid = (lx + rx) / 2;
+        change(l,r,val,2*ni+1,lx,mid);
+        change(l,r,val,2*ni+2,mid,rx);
+        seg_data[ni] = merge(seg_data[2*ni+1], seg_data[2*ni+2]);
+    }
+
+    void change(int l, int r, int val) {
+        change(l,r+1,val,0,0,tree_size);
+    }
+
+    int nextGreater(int l, int r, int val, int x, int lx, int rx){
+        propagate(x, lx, rx);
+        if(lx >= r || l >= rx) return -1;
+        if(seg_data[x].mx < val) return -1;
+        if(rx - lx == 1) return lx;
+
+        int mid = lx + (rx - lx)/2;
+        int ans = nextGreater(l, r, val, 2 * x + 1, lx, mid);
+        if(ans == -1){
+            ans = nextGreater(l, r, val, 2 * x + 2, mid, rx);
+        }
+        return ans;
+    }
+
+    int nextGreater(int l, int r, int val){
+        return nextGreater(l, r+1, val, 0, 0, tree_size);
+    }
+
+    int prevGreater(int l, int r, int val, int x, int lx, int rx){
+        propagate(x, lx, rx);
+        if(lx >= r || l >= rx) return -1;
+        if(seg_data[x].mx < val) return -1;
+        if(rx - lx == 1) return lx;
+
+        int mid = lx + (rx - lx)/2;
+        int ans = prevGreater(l, r, val, 2 * x + 2, mid, rx);
+        if(ans == -1){
+            ans = prevGreater(l, r, val, 2 * x + 1, lx, mid);
+        }
+        return ans;
+    }
+
+    int prevGreater(int l, int r, int val){
+        return prevGreater(l, r+1, val, 0, 0, tree_size);
+    }
+};

@@ -1,0 +1,12 @@
+// distance between 2 segments
+T segSeg(pt a, pt b, pt c, pt d) {
+    pt dummy;
+    if (properInter(a,b,c,d,dummy))
+        return 0;
+    return min({segPoint(a,b,c), segPoint(a,b,d),
+                segPoint(c,d,a), segPoint(c,d,b)});
+}
+void rayToSeg(pt&st,pt&en){
+    T INF=1e9l; // different based on problem
+    en=st+(en-st)*pt(INF,0);
+}

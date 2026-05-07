@@ -1,0 +1,9 @@
+ll pow_mod(ll x, ll n, ll m) {
+    ll res = 1;
+    while (n > 0) {
+        if (n & 1) res = ((res % m) * (x % m)) % m;
+        x = ((x % m) * (x % m)) % m;
+        n /= 2;
+    }
+    return res;
+}

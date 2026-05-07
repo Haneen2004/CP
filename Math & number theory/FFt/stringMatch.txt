@@ -1,0 +1,24 @@
+int strMatch(string&s,string &pat){
+    string g="abc";// possible chars
+    int n=sz(s),m=sz(pat),sh=m-1;
+    vi p1(n),p2(m);
+    vi dis(n-m+1);
+    for (int i = 0; i < sz(g) ; ++i) {
+        for (int j = 0; j < n ; ++j) p1[j]=s[j]==g[i];
+        for (int j = 0; j < m ; ++j) p2[sh-j]=pat[j]==g[i];
+
+        vi c= multiply(p1,p2);
+        for (int j = 0; j <= n-m ; ++j) {
+            dis[j]+=c[j+sh];
+        }
+    }
+
+    // dis contain number of same char at idx 0:n-m
+    // use as what problem need
+
+    int ret=inf;
+    for (int i = 0; i <= n-m ; ++i) {
+        ret=min(ret,m-dis[i]);
+    }
+    return ret;
+}

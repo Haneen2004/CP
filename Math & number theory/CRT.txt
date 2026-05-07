@@ -1,0 +1,55 @@
+CRT
+// given set of a,m   X ≡ ai (mod mi) , return x %(m1*m2*..*mn)
+// o(n log(m) )
+// Extended Euclidean Algorithm
+ll extended_gcd(ll a, ll b, ll &x, ll &y) {
+    if (b == 0) {
+        x = 1;
+        y = 0;
+        return a;
+    }
+    ll x1, y1;
+    ll g = extended_gcd(b, a % b, x1, y1);
+    x = y1;
+    y = x1 - (a / b) * y1;
+    return g;
+}
+
+// Modular Inverse
+ll mod_inv(ll a, ll m) {
+    ll x, y;
+    ll g = extended_gcd(a, m, x, y);
+    if (g != 1) {
+        // inverse doesn't exist
+        return -1;
+    }
+    x = (x % m + m) % m;
+    return x;
+}
+
+struct Congruence {
+    ll a, m; // x ≡ a (mod m)
+};
+
+// Chinese Remainder Theorem
+// all pairs of m must be coprime
+ll chinese_remainder_theorem(const vector<Congruence>& congruences) {
+    ll M = 1;
+    for (auto &c : congruences) {
+        M *= c.m;
+    }
+
+    ll solution = 0;
+
+    for (auto &c : congruences) {
+        ll a_i = c.a;
+        ll m_i = c.m;
+
+        ll M_i = M / m_i;
+        ll N_i = mod_inv(M_i, m_i);
+
+        solution = (solution + a_i * M_i % M * N_i) % M;
+    }
+
+    return (solution % M + M) % M;
+}

@@ -1,0 +1,41 @@
+int pre(int u,int p){
+    int ret=1,num=0;
+    for(auto&i:adj[u]) if(i!=p){
+            int tmp=pre(i,u);
+            ret+=tmp;
+            if(tmp>num)
+                num=tmp , big[u]=i;
+        }
+    return ret;
+}
+void update(int u,int d){
+    sum[fre[col[u]]]-=col[u];
+    fre[col[u]]+=d;
+    sum[fre[col[u]]]+=col[u];
+    if(fre[col[u]]>mx){
+        mx=fre[col[u]];
+    }
+    else if(fre[col[u]]==mx-1&&sum[mx]==0)
+        mx=fre[col[u]];
+}
+
+
+void collect(int u,int p,int d){
+    update(u,d);
+    for(auto&i:adj[u]) if(i!=p){
+            collect(i,u,d);
+        }
+}
+void dfs(int u,int p,int b){
+    for(auto&i:adj[u]) if(i!=p && i!=big[u]){
+            dfs(i,u,0);
+        }
+    if(big[u])
+        dfs(big[u],u,1);
+    for(auto&i:adj[u]) if(i!=p && i!=big[u]){
+            collect(i,u,1);
+        }
+    update(u,1); 
+    ans[u]=sum[mx];
+    if(!b) collect(u,p,-1);
+}

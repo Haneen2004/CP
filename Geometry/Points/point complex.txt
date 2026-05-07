@@ -1,0 +1,7 @@
+typedef complex<T> pt;
+
+#define X real()
+#define Y imag()
+
+// abs (r) , arg(angle)
+// Make a point(complex) from polar coordinates polar(2.0,-M_PI/2)

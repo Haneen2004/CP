@@ -1,0 +1,34 @@
+vector<int>onStack(N),lowLink(N),ids(N);
+vector<vector<int>>adj(N);
+int id=0,sccCount=0;
+stack<int>cur;
+void dfs(int u){
+    cur.push(u);
+    onStack[u]=1;
+    ids[u]=lowLink[u]=id++;
+
+    for(auto&i:adj[u]){
+        if(ids[i]==-1) {
+            dfs(i);
+            lowLink[u] = min(lowLink[u], lowLink[i]);
+        }
+        else if(onStack[i])
+            lowLink[u]=min(lowLink[u],ids[i]);
+    }
+    if(ids[u]==lowLink[u]){
+        int node=-1;
+        while (node!=u){
+            node=cur.top();
+            cur.pop();
+            onStack[node]=false;
+            lowLink[node]=ids[u];
+        }
+    }
+}
+void SCC(int n){
+    for(int i=1;i<=n;++i) ids[i]=-1;
+    for(int i=1;i<=n;++i){
+        if(ids[i]==-1)
+            dfs(i);
+    }
+}

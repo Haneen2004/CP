@@ -1,0 +1,12 @@
+ll add(ll a, ll b) {
+    return (a % mod + b % mod) % mod;
+} 
+ll sub(ll a, ll b) {
+    return (a % mod - b % mod + mod) % mod;
+}
+ll mul(ll a, ll b) {
+    return ((a % mod) * (b % mod)) % mod;
+}
+ll division(ll a, ll b) {
+    return mul(a, pow_mod(b, mod - 2, mod));
+}

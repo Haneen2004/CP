@@ -1,0 +1,8 @@
+
+// check if(there is an intersection point -> set it to out
+bool inter(line l1, line l2, pt &out) {
+    T d = cross(l1.v, l2.v);
+    if (d == 0) return false;
+    out = (l2.v * l1.c - l1.v * l2.c) / d; // requires floating-point coordinates
+    return true;
+}

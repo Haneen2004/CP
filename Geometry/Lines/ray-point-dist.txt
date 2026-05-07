@@ -1,0 +1,9 @@
+// distance between point and ray
+T rayPoint(pt a, pt b, pt p) {
+    if (a != b) {
+        line l(a, b);
+        if (l.cmpProj(a, p)) // if closest to projection
+            return l.dist(p); // output distance to line
+    }
+    return abs(p - a); // otherwise distance to A or B}
+}

@@ -1,0 +1,132 @@
+/////////////////////////////////////////////////
+// NTT Template (generic per mod)
+template<ll mod, ll root>
+struct NTT {
+
+    ll modpow(ll b, ll e) {
+        ll ans = 1;
+        while (e) {
+            if (e & 1) ans = ans * b % mod;
+            b = b * b % mod;
+            e >>= 1;
+        }
+        return ans;
+    }
+
+    void ntt(vi &a) {
+        int n = a.size();
+        int L = 31 - __builtin_clz(n);
+
+        vector<ll> rt(n);
+        rt[1] = 1;
+
+        for (int k = 2, s = 2; k < n; k <<= 1, s++) {
+            ll z = modpow(root, (mod - 1) >> s);
+            for (int i = k; i < 2 * k; i++) {
+                rt[i] = (i & 1) ? rt[i / 2] * z % mod : rt[i / 2];
+            }
+        }
+
+        vector<int> rev(n);
+        for (int i = 0; i < n; i++) {
+            rev[i] = (rev[i >> 1] | ((i & 1) << L)) >> 1;
+            if (i < rev[i]) swap(a[i], a[rev[i]]);
+        }
+
+        for (int k = 1; k < n; k <<= 1) {
+            for (int i = 0; i < n; i += 2 * k) {
+                for (int j = 0; j < k; j++) {
+                    ll z = rt[j + k] * a[i + j + k] % mod;
+                    a[i + j + k] = (a[i + j] - z + mod) % mod;
+                    a[i + j] = (a[i + j] + z) % mod;
+                }
+            }
+        }
+    }
+
+    vi multiply(vi a, vi b) {
+        int s = a.size() + b.size() - 1;
+        int n = 1;
+        while (n < s) n <<= 1;
+
+        a.resize(n), b.resize(n);
+
+        ntt(a), ntt(b);
+
+        ll inv = modpow(n, mod - 2);
+
+        vi res(n);
+        for (int i = 0; i < n; i++) {
+            res[-i & (n - 1)] = a[i] * b[i] % mod * inv % mod;
+        }
+
+        ntt(res);
+        res.resize(s);
+        return res;
+    }
+};
+
+/////////////////////////////////////////////////
+// 3 NTT instances
+NTT<998244353, 62> ntt1;
+NTT<1004535809, 3> ntt2;
+NTT<469762049, 3> ntt3;
+
+/////////////////////////////////////////////////
+// Extended GCD
+ll extgcd(ll a, ll b, ll &x, ll &y) {
+    if (!b) return x = 1, y = 0, a;
+    ll x1, y1;
+    ll g = extgcd(b, a % b, x1, y1);
+    x = y1;
+    y = x1 - y1 * (a / b);
+    return g;
+}
+
+ll modinv(ll a, ll m) {
+    ll x, y;
+    extgcd(a, m, x, y);
+    return (x % m + m) % m;
+}
+
+/////////////////////////////////////////////////
+// Garner (CRT under target mod)
+ll combine(ll a1, ll a2, ll a3, ll MOD) {
+    ll m1 = 998244353;
+    ll m2 = 1004535809;
+    ll m3 = 469762049;
+
+    ll x = a1;
+
+    ll t1 = (a2 - x) % m2;
+    if (t1 < 0) t1 += m2;
+    t1 = t1 * modinv(m1 % m2, m2) % m2;
+
+    x = x + t1 * m1;
+
+    ll t2 = (a3 - x) % m3;
+    if (t2 < 0) t2 += m3;
+    t2 = t2 * modinv((m1 * m2) % m3, m3) % m3;
+
+    x = (x + t2 * (m1 * m2 % MOD)) % MOD;
+
+    return x % MOD;
+}
+
+/////////////////////////////////////////////////
+// multiply under ANY mod
+vi multiply_mod(vi a, vi b, ll MOD) {
+    vi c1 = ntt1.multiply(a, b);
+    vi c2 = ntt2.multiply(a, b);
+    vi c3 = ntt3.multiply(a, b);
+
+    int n = c1.size();
+    vi res(n);
+
+    for (int i = 0; i < n; i++) {
+        res[i] = combine(c1[i], c2[i], c3[i], MOD);
+    }
+
+    return res;
+}
+
