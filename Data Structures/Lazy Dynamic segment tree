@@ -1,0 +1,85 @@
+struct Node {
+    int l, r;
+    int sum = 0;
+    int lazy = 0;
+
+    Node *left = nullptr, *right = nullptr;
+
+    Node(int lb, int rb) {
+        l = lb;
+        r = rb;
+    }
+
+    // create children only when needed
+    void extend() {
+        if (!left && l + 1 < r) {
+            int mid = (l + r) >> 1;
+
+            left = new Node(l, mid);
+            right = new Node(mid, r);
+        }
+    }
+
+    // push lazy to children
+    void push() {
+        if (lazy == 0)
+            return;
+
+        extend();
+
+        // leaf node
+        if (!left)
+            return;
+
+        int mid = (l + r) >> 1;
+
+        left->sum += (mid - l) * lazy;
+        right->sum += (r - mid) * lazy;
+
+        left->lazy += lazy;
+        right->lazy += lazy;
+
+        lazy = 0;
+    }
+
+    // add val to range [lq, rq)
+    void update(int lq, int rq, int val) {
+
+        // no overlap
+        if (rq <= l || r <= lq)
+            return;
+
+        // full overlap
+        if (lq <= l && r <= rq) {
+            sum += (r - l) * val;
+            lazy += val;
+            return;
+        }
+
+        push();
+        extend();
+
+        left->update(lq, rq, val);
+        right->update(lq, rq, val);
+
+        sum = left->sum + right->sum;
+    }
+
+    // query sum on range [lq, rq)
+    int query(int lq, int rq) {
+
+        // no overlap
+        if (rq <= l || r <= lq)
+            return 0;
+
+        // full overlap
+        if (lq <= l && r <= rq)
+            return sum;
+
+        push();
+        extend();
+
+        return left->query(lq, rq) +
+               right->query(lq, rq);
+    }
+};
