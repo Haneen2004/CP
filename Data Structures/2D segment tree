@@ -1,0 +1,150 @@
+struct SegTree2D {
+
+    using T = long long;
+
+    int n, m;
+    vector<vector<T>> a;
+    vector<vector<T>> t;
+
+    const T neutral = 0;
+
+    SegTree2D(vector<vector<T>> &v) {
+        a = v;
+        n = a.size();
+        m = a[0].size();
+
+        t.assign(4 * n, vector<T>(4 * m));
+
+        build_x(1, 0, n - 1);
+    }
+
+    T merge(T x, T y) {
+        return x + y;
+    }
+
+    // O(m) for one x-node
+    void build_y(int vx, int lx, int rx, int vy, int ly, int ry) {
+
+        if (ly == ry) {
+
+            if (lx == rx)
+                t[vx][vy] = a[lx][ly];
+
+            else
+                t[vx][vy] = merge(t[vx * 2][vy], t[vx * 2 + 1][vy]);
+        }
+
+        else {
+
+            int my = (ly + ry) / 2;
+
+            build_y(vx, lx, rx, vy * 2, ly, my);
+            build_y(vx, lx, rx, vy * 2 + 1, my + 1, ry);
+
+            t[vx][vy] = merge(t[vx][vy * 2], t[vx][vy * 2 + 1]);
+        }
+    }
+
+    // Total: O(n * m)
+    void build_x(int vx, int lx, int rx) {
+
+        if (lx != rx) {
+
+            int mx = (lx + rx) / 2;
+
+            build_x(vx * 2, lx, mx);
+            build_x(vx * 2 + 1, mx + 1, rx);
+        }
+
+        build_y(vx, lx, rx, 1, 0, m - 1);
+    }
+
+    // O(log m)
+    T query_y(int vx, int vy, int tly, int try_, int ly, int ry) {
+
+        if (ly > ry)
+            return neutral;
+
+        if (ly == tly && ry == try_)
+            return t[vx][vy];
+
+        int tmy = (tly + try_) / 2;
+
+        return merge(
+            query_y(vx, vy * 2, tly, tmy, ly, min(ry, tmy)),
+            query_y(vx, vy * 2 + 1, tmy + 1, try_, max(ly, tmy + 1), ry)
+        );
+    }
+
+    // O(log n * log m)
+    T query_x(int vx, int tlx, int trx, int lx, int rx, int ly, int ry) {
+
+        if (lx > rx)
+            return neutral;
+
+        if (lx == tlx && rx == trx)
+            return query_y(vx, 1, 0, m - 1, ly, ry);
+
+        int tmx = (tlx + trx) / 2;
+
+        return merge(
+            query_x(vx * 2, tlx, tmx, lx, min(rx, tmx), ly, ry),
+            query_x(vx * 2 + 1, tmx + 1, trx, max(lx, tmx + 1), rx, ly, ry)
+        );
+    }
+
+    // query rectangle (x1, y1) -> (x2, y2)
+    // O(log n * log m)
+    T query(int x1, int y1, int x2, int y2) {
+        return query_x(1, 0, n - 1, x1, x2, y1, y2);
+    }
+
+    // O(log m)
+    void update_y(int vx, int lx, int rx, int vy, int ly, int ry, int x, int y, T new_val) {
+
+        if (ly == ry) {
+
+            if (lx == rx)
+                t[vx][vy] = new_val;
+
+            else
+                t[vx][vy] = merge(t[vx * 2][vy], t[vx * 2 + 1][vy]);
+        }
+
+        else {
+
+            int my = (ly + ry) / 2;
+
+            if (y <= my)
+                update_y(vx, lx, rx, vy * 2, ly, my, x, y, new_val);
+
+            else
+                update_y(vx, lx, rx, vy * 2 + 1, my + 1, ry, x, y, new_val);
+
+            t[vx][vy] = merge(t[vx][vy * 2], t[vx][vy * 2 + 1]);
+        }
+    }
+
+    // O(log n * log m)
+    void update_x(int vx, int lx, int rx, int x, int y, T new_val) {
+
+        if (lx != rx) {
+
+            int mx = (lx + rx) / 2;
+
+            if (x <= mx)
+                update_x(vx * 2, lx, mx, x, y, new_val);
+
+            else
+                update_x(vx * 2 + 1, mx + 1, rx, x, y, new_val);
+        }
+
+        update_y(vx, lx, rx, 1, 0, m - 1, x, y, new_val);
+    }
+
+    // point update
+    // O(log n * log m)
+    void update(int x, int y, T val) {
+        update_x(1, 0, n - 1, x, y, val);
+    }
+};
