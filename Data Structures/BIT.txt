@@ -44,3 +44,31 @@ public:
 
 
 ////////
+
+struct BIT {
+    vector<ll> tree;
+ 
+    BIT(int n) {
+        tree.resize(n + 2);
+    }
+ 
+    int get(int k) {
+        int ans = 0;
+        while (k >= 1) {
+            ans += tree[k];
+            k -= k & -k;
+        }
+        return ans;
+    }
+ 
+    void update(int k, int v) {
+        while (k < tree.size()) {
+            tree[k] += v;
+            k += k & -k;
+        }
+    }
+ 
+    int query(int l, int r) {
+        return get(r) - get(l - 1);
+    }
+};
