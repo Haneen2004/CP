@@ -23,5 +23,10 @@ bool find_any_solution(long long a, long long b, long long c, long long &x0, lon
     y0 *= c / g;
     if (a < 0) x0 = -x0;
     if (b < 0) y0 = -y0;
+
+    // to change x0,y0
+    // newX0 = x0 + k*(b/g)
+    // newY0 = y0 - k*(a/g)
+
     return true;
 }
