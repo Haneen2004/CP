@@ -1,0 +1,39 @@
+int n;
+vi permToFac(vi &p){
+    vi ret(n);
+
+    ordered_set<int>s;
+    for (int i = 0; i < n ; ++i) s.insert(i);
+
+    for (int i = 0; i < n ; ++i) {
+        ret[i]=s.order_of_key(p[i]);
+        s.erase(p[i]);
+    }
+
+    return ret;
+}
+vi facToPerm(vi &f){
+    vi p(n);
+    FenwickTree<int> bt;
+    bt.init(n+1);
+    for (int i = 0; i < n ; ++i) {
+        bt.update(i+1,1);
+    }
+
+    for (int i = 0; i < n ; ++i) {
+        p[i]=bt.lowerBound(f[i]+1)-1;
+        bt.update(p[i]+1,-1);
+    }
+    return p;
+}
+
+vi add(vi &a,vi &b){
+    vi ret(n);
+    int carry=0;
+    for (int i = n-1; i >= 0 ; --i) {
+        int sum=a[i]+b[i]+carry,id=n-i;
+        ret[i]=sum%id,carry=sum/id;
+    }
+
+    return ret;
+}
