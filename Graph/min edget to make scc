@@ -1,0 +1,194 @@
+#include <bits/stdc++.h>
+#define ll long long
+//#define int  ll
+#define ld long double
+#define all(v) v.begin()+1,v.end()
+#define rall(v) v.rbegin(),v.rend()
+#define vi vector<int>
+#define vvi vector<vector<int>>
+#define vvv vector<vvi>
+#define vpi vector<pair<int,int>>
+#define sz(v) (int)v.size()
+#define pb push_back
+#define ii pair<int,int>
+#define F first
+#define S second
+using namespace std;
+const int mod = 1e9+7, N = 2e5+5;
+const ll inf = 1e17 + 1;
+string di[] = {"L", "R", "D", "U", "UR", "UL", "DR", "DL"};
+int dx[] = {0, 0, -1, 1, 1, 1, -1, -1};
+int dy[] = {1, -1, 0, 0, 1, -1, 1, -1};
+
+vector<int>onStack,lowLink,ids;
+vector<vector<int>>adj;
+int id=0,sccCount=0;
+stack<int>cur;
+void dfs(int u){
+    cur.push(u);
+    onStack[u]=1;
+    ids[u]=lowLink[u]=id++;
+
+    for(auto&i:adj[u]){
+        if(ids[i]==-1) {
+            dfs(i);
+            lowLink[u] = min(lowLink[u], lowLink[i]);
+        }
+        else if(onStack[i])
+            lowLink[u]=min(lowLink[u],ids[i]);
+    }
+    if(ids[u]==lowLink[u]){
+        int node=-1;
+        while (node!=u){
+            node=cur.top();
+            cur.pop();
+            onStack[node]=false;
+            lowLink[node]=ids[u];
+        }
+    }
+}
+void SCC(int n){
+    lowLink=ids=onStack=vi(n+1);
+    for(int i=1;i<=n;++i) ids[i]=-1;
+    for(int i=1;i<=n;++i){
+        if(ids[i]==-1)
+            dfs(i);
+    }
+
+    set<int>s={all(lowLink)};
+    sccCount=sz(s);
+}
+
+vector<bool> src,snk,vis;
+int dfs2(int u){
+    vis[u]=1;
+    if(snk[u]) return u;
+
+    int ret=-1;
+    for(auto&v:adj[u]){
+        if(vis[v]) continue;
+        int x=dfs2(v);
+        if(~x){
+            ret=x;
+            break;
+        }
+    }
+
+
+    return ret;
+}
+void mashy() {
+    int n,m;
+    cin>>n>>m;
+    adj.resize(n+1);
+    src=snk=vector<bool>(n+1,true);
+    while (m--){
+        int u,v; cin>>u>>v;
+        if(u==v) continue;
+        adj[u].pb(v);
+        src[v]=snk[u]=0;
+    }
+    SCC(n);
+    if(sccCount==1){
+        cout<<0;
+        return;
+    }
+
+    if(accumulate(all(src),0)==1 && accumulate(all(snk),0)==1){
+        int u=-1,v=-1;
+        for (int i = 1; i <= n ; ++i) {
+            if(src[i]==1&&snk[i]==1){
+                u=i;
+                v=(i==1?2:1);
+                break;
+            }
+        }
+
+        if(u!=-1){
+            cout<<"2\n"<<u<<' '<<v<<'\n'<<v<<' '<<u<<'\n';
+            return;
+        }
+
+    }
+
+    cout<<max(accumulate(all(src),0), accumulate(all(snk),0))<<'\n';
+    vis.assign(n+1,0);
+    vpi p;
+    vector<bool> add(n+1);
+    for (int i = 1; i <= n ; ++i) {
+        if(!vis[i]&&src[i]){
+            int x=dfs2(i);
+            if(~x) p.pb({i,x}),add[i]=add[x]=1;
+        }
+    }
+    for (int i = 0,j; i < sz(p) ; ++i) {
+        j=(i+1)%sz(p);
+        cout<<p[j].S<<' '<<p[i].F<<'\n';
+    }
+
+
+    vi remSrc,remSnk;
+    for (int i = 1; i <= n ; ++i){
+        if(add[i]) continue;
+        if(src[i]) remSrc.pb(i);
+        if(snk[i]) remSnk.pb(i);
+    }
+
+    if((remSrc.empty()?1:0)+(remSnk.empty()?1:0)==1){
+        if(remSrc.empty()){
+            for (int i = 1; i <= n ; ++i) {
+                if(src[i]){
+                    remSrc.pb(i);
+                    break;
+                }
+            }
+            if(remSrc.empty()){
+                for (int i = 1; i <= n ; ++i) {
+                    if(!snk[i]){
+                        remSrc.pb(i);
+                        break;
+                    }
+                }
+            }
+        }
+        if(remSnk.empty()){
+            for (int i = 1; i <= n ; ++i) {
+                if(snk[i]){
+                    remSnk.pb(i);
+                    break;
+                }
+            }
+            if(remSnk.empty()){
+                for (int i = 1; i <= n ; ++i) {
+                    if(!src[i]){
+                        remSnk.pb(i);
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    for (int i = 0; i < max(sz(remSnk),sz(remSrc)) ; ++i) {
+        cout<<remSnk[i%sz(remSnk)]<<' '<<remSrc[i%sz(remSrc)]<<'\n';
+    }
+
+
+}
+
+int32_t main() {
+//    freopen("input.txt", "r", stdin);
+//    freopen("output.txt", "w", stdout);
+
+    ios_base::sync_with_stdio(false);
+    cin.tie(0), cout.tie(0);
+
+    int tc = 1;
+//    cin >> tc;
+    for (int i = 1; i <= tc; ++i) {
+//        cout<<"Case #"<<i<<": ";
+        mashy();
+    }
+
+    return 0;
+}
