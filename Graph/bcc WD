@@ -1,0 +1,138 @@
+#include <bits/stdc++.h>
+using namespace std;
+using ll = long long;
+
+void fast() {
+    ios_base::sync_with_stdio(false);
+    cin.tie(nullptr);
+    cout.tie(nullptr);
+#ifdef MOATAZOLEQ
+    freopen("input.txt", "r", stdin), freopen("output.txt", "w", stdout);
+#endif
+}
+#define int ll
+const int N = 4e5 + 50;
+vector<pair<int, int> > adj[N], adjT[N];
+bool vis[N];
+int tin[N], low[N], timer;
+int par[N];
+ll pref[N], weight[N];
+int curC;
+
+void dfs(int u, int p = -1) {
+    vis[u] = true;
+    tin[u] = low[u] = timer++;
+    for (auto [to, w]: adj[u]) {
+        if (to == p) continue;
+        if (vis[to]) {
+            low[u] = min(low[u], tin[to]);
+            if (tin[to] < tin[u]) {
+                weight[curC] = pref[u] - pref[to] + w;
+
+                int v = u;
+                while (v != to) {
+                    ll we = min(pref[v] - pref[to],
+                                weight[curC] - (pref[v] - pref[to]));
+                    adjT[curC].push_back({v, we});
+                    adjT[v].push_back({curC, we});
+                    v = par[v];
+                }
+                adjT[curC].push_back({v, 0});
+                adjT[v].push_back({curC, 0});
+                curC++;
+            }
+        } else {
+            par[to] = u;
+            pref[to] = pref[u] + w;
+            dfs(to, u);
+            low[u] = min(low[u], low[to]);
+            if (low[to] > tin[u]) {
+                adjT[u].push_back({to, w});
+                adjT[to].push_back({u, w});
+            }
+        }
+    }
+}
+
+int up[N][20], depth[N];
+ll dist[N];
+
+void dfs2(int u, int p) {
+    up[u][0] = p;
+    for (int i = 1; i < 20; ++i) {
+        up[u][i] = up[up[u][i - 1]][i - 1];
+    }
+    for (auto [v, w]: adjT[u]) {
+        if (v == p) continue;
+        depth[v] = depth[u] + 1;
+        dist[v] = dist[u] + w;
+        dfs2(v, u);
+    }
+}
+
+int kth(int u, int k) {
+    for (int i = 0; i < 20; ++i) {
+        if (k >> i & 1) {
+            u = up[u][i];
+        }
+    }
+    return u;
+}
+
+int lca(int u, int v) {
+    if (depth[u] < depth[v]) swap(u, v);
+    u = kth(u, depth[u] - depth[v]);
+    if (u == v) return u;
+    for (int i = 19; i >= 0; --i) {
+        if (up[u][i] != up[v][i]) {
+            u = up[u][i];
+            v = up[v][i];
+        }
+    }
+    return up[u][0];
+}
+
+
+void solve() {
+    int n, m, q;
+    cin >> n >> m >> q;
+    for (int i = 0; i < m; ++i) {
+        int u, v, w;
+        cin >> u >> v >> w;
+        --u, --v;
+        adj[u].push_back({v, w});
+        adj[v].push_back({u, w});
+    }
+    curC = n;
+    dfs(0, 0);
+    dfs2(0, 0);
+    while (q--) {
+        int u, v;
+        cin >> u >> v;
+        --u, --v;
+        int lc = lca(u, v);
+        if (lc < n) {
+            cout << dist[u] + dist[v] - 2 * dist[lc] << '\n';
+        } else {
+            ll ans = dist[u] + dist[v];
+            u = kth(u, depth[u] - depth[lc] - 1);
+            v = kth(v, depth[v] - depth[lc] - 1);
+            ans -= dist[u] + dist[v];
+            ll we = (pref[v] - pref[u]) * (tin[u] < tin[v] ? 1 : -1);
+            we = min(we, weight[lc] - we);
+            ans += we;
+            cout << ans << '\n';
+        }
+    }
+}
+
+
+signed main() {
+    fast();
+
+    int tt = 1;
+    // cin >> tt;
+    while (tt--) {
+        solve();
+    }
+}
