@@ -40,3 +40,21 @@ void decompose(int v) {
         }
     }
 }
+
+
+// decomposed tree
+vvi t(MAXN);
+void decompose(int v,int p) {
+    int tree_size = get_subtree_size(v);
+    int centroid = get_centroid(v, tree_size);
+
+    if(p) t[p].pb(centroid);
+
+    removed[centroid] = true;
+
+    for (int u : adj[centroid]) {
+        if (!removed[u]) {
+            decompose(u,centroid);
+        }
+    }
+}
