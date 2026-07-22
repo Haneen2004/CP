@@ -1,0 +1,64 @@
+typedef complex<T> pt;
+#define X real()
+#define Y imag()
+
+const long double EPS = 1e-10;
+
+T cross(pt a, pt b){
+    return a.X * b.Y - a.Y * b.X;
+}
+
+bool inside(pt p, pt a, pt b){
+    // Left side of AB (including boundary)
+    return cross(b - a, p - a) >= -EPS;
+}
+
+pt lineIntersection(pt p1, pt p2,pt a, pt b){
+
+    auto r = pt(p2.X - p1.X, p2.Y - p1.Y);
+    auto s = pt(b.X - a.X, b.Y - a.Y);
+
+    auto ap = pt(a.X - p1.X, a.Y - p1.Y);
+
+    long double t = cross(ap, s) / cross(r, s);
+
+    return pt(
+        p1.X + r.X * t,
+        p1.Y + r.Y * t
+    );
+}
+
+vector<pt> polygonCut(const vector<pt>& poly,pt a,pt b){
+    vector<pt> res;
+    int n = poly.size();
+    for(int i = 0; i < n; i++){
+        auto cur = poly[i];
+        auto nxt = poly[(i + 1) % n];
+        bool in1 = inside(cur, a, b);
+        bool in2 = inside(nxt, a, b);
+        if(in1 && in2){
+            res.push_back(nxt);
+        }
+        else if(in1 && !in2){
+            res.push_back(lineIntersection(cur, nxt, a, b));
+        }
+        else if(!in1 && in2){
+            res.push_back(lineIntersection(cur, nxt, a, b));
+            res.push_back(
+                pt(nxt.X, nxt.Y)
+            );
+        }
+    }
+    return res;
+}
+
+pair<pt, pt>shiftLine(pt a, pt b, long double d){
+    auto dir = pt(b.X - a.X, b.Y - a.Y);
+    long double len = abs(dir);
+    dir /= len;
+    pt normal(-dir.Y, dir.X);
+    return {
+        pt(a.X + normal.X * d,a.Y + normal.Y * d),
+        pt(b.X + normal.X * d,b.Y + normal.Y * d)
+    };
+}
