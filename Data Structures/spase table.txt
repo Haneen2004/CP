@@ -20,3 +20,43 @@ struct sparse{
         return max(T[l][z],T[r-(1<<z)+1][z]);
     }
 };
+
+//  q o(1)
+struct Sparse {
+    int n;
+    vector<int> lg;
+    vector<vector<int>> st;
+
+    Sparse() {}
+
+    Sparse(vector<int> &v) {
+        build(v);
+    }
+
+    void build(vector<int> &v) {
+        n = v.size();
+
+        lg.assign(n + 1, 0);
+        for (int i = 2; i <= n; i++)
+            lg[i] = lg[i / 2] + 1;
+
+        int K = lg[n] + 1;
+        st.assign(K, vector<int>(n));
+
+        for (int i = 0; i < n; i++)
+            st[0][i] = v[i];
+
+        for (int j = 1; j < K; j++) {
+            for (int i = 0; i + (1 << j) <= n; i++) {
+                st[j][i] = min(st[j - 1][i],
+                               st[j - 1][i + (1 << (j - 1))]);
+            }
+        }
+    }
+
+    int query(int l, int r) {
+        if (l > r) return LLONG_MAX;
+        int j = lg[r - l + 1];
+        return min(st[j][l], st[j][r - (1 << j) + 1]);
+    }
+};
