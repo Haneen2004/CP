@@ -22,5 +22,7 @@ vector<int> manacher(string s) {
         t += string("#") + c;
     }
     auto res = manacher_odd(t + "#");
-    return vector<int>(begin(res) + 1, end(res) - 1);
+    vi ret=vector<int>(begin(res) + 1, end(res) - 1);
+    for (auto&i:ret) i/=2;
+    return ret;
 }
