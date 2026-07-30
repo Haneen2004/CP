@@ -15,7 +15,7 @@ ll calc_phi(ll n) {
 // array phi
 vector<int>phi(N);
 void calc_phi() {
-    for (int i = 2; i < N; i++)
+    for (int i = 1; i < N; i++)
         phi[i] = i;
 
     for (int i = 2; i < N; i++) {
