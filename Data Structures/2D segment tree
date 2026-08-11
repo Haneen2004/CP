@@ -1,3 +1,5 @@
+// query , update o( log(n) * log(m) )
+// memory 16*n*m
 struct SegTree2D {
 
     using T = long long;
