@@ -1,3 +1,4 @@
+// update , query o( log(n) * log(m) )
 template<typename T>
 class FenwickTree2D {
 public:
