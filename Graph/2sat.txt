@@ -57,3 +57,12 @@ struct twoSat {
         adj_t[a].push_back(neg_b);
     }
 };
+
+A -> B
+    = !A OR B
+
+NOT(A AND B)
+    = !A OR !B
+
+A XOR B
+    = (A OR B) AND (!A OR !B)
