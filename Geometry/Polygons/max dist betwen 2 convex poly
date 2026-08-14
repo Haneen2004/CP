@@ -1,4 +1,9 @@
 // maximum distance from a convex polygon to another convex polygon
+double dist2(pt a, pt b) {
+    double dx = a.x - b.x;
+    double dy = a.y - b.y;
+    return dx * dx + dy * dy;
+}
 double maximum_dist_from_polygon_to_polygon(vector<PT> &u, vector<PT> &v){ //O(n)
     int n = (int)u.size(), m = (int)v.size();
     double ans = 0;
