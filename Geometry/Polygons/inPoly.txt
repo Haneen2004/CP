@@ -16,3 +16,23 @@ bool inPolygon(vector<pt> p, pt a, bool strict = true) {
     }
     return numCrossings & 1; // inside if odd number of crossings
 }
+
+
+// in o(log)
+// p is sorted counter clock wise
+bool inConvex(vector<pt> p, pt a){
+    if(p.size() < 3) return 0;
+
+    int n = p.size();
+    int l = 1, r = n - 2, mid, ans = 1;
+    while(l <= r){
+        mid = (l + r) / 2;
+        if(sgn(orient(p[0], p[mid], a)) > 0){
+            l = mid + 1;
+            ans = mid;
+        }
+        else r = mid - 1;
+    }
+
+    return inPoly(p[0], p[ans], p[ans + 1], 0);
+}
